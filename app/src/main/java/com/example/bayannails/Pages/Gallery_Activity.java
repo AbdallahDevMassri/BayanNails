@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
+import com.example.bayannails.R;
+
 public class Gallery_Activity extends AppCompatActivity {
 
     @Override
