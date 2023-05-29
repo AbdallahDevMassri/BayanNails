@@ -18,13 +18,13 @@
 
 
         <ImageView
-            android:id="@+id/imageView8"
+            android:id="@+id/ivGallery"
             android:layout_width="100dp"
             android:layout_height="100dp"
             app:srcCompat="@drawable/gallery" />
 
         <ImageView
-            android:id="@+id/imageView9"
+            android:id="@+id/ivQueue"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginLeft="20dp"
@@ -32,7 +32,7 @@
             app:srcCompat="@drawable/list" />
 
         <ImageView
-            android:id="@+id/imageView6"
+            android:id="@+id/ivMaps"
             android:layout_width="100dp"
             android:layout_height="100dp"
 
@@ -91,14 +91,14 @@
 
 
         <ImageView
-            android:id="@+id/imageView7"
+            android:id="@+id/ivChange"
             android:layout_width="100dp"
             android:layout_height="100dp"
             app:srcCompat="@drawable/arrow" />
 
 
         <ImageView
-            android:id="@+id/imageView5"
+            android:id="@+id/ivCancel"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginLeft="20dp"
@@ -106,7 +106,7 @@
             app:srcCompat="@drawable/x" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/ivAdd"
             android:layout_width="100dp"
             android:layout_height="100dp"
             app:srcCompat="@drawable/clock" />
@@ -152,14 +152,14 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/imageView3"
+            android:id="@+id/ivFacebook"
             android:layout_width="100dp"
             android:layout_height="100dp"
             app:srcCompat="@drawable/facebook" />
 
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/ivInstagram"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginLeft="20dp"
@@ -167,7 +167,7 @@
             app:srcCompat="@drawable/instagram__1_" />
 
         <ImageView
-            android:id="@+id/imageView4"
+            android:id="@+id/ivWatssup"
             android:layout_width="100dp"
             android:layout_height="100dp"
 
@@ -215,7 +215,7 @@
         android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/imageView10"
+                android:id="@+id/ivCall"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:src="@drawable/call"
