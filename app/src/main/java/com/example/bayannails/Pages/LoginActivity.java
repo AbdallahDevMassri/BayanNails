@@ -23,7 +23,8 @@ public class LoginActivity extends AppCompatActivity {
     private DatabaseReference userRef;
 
     // Create a final admin user with fixed name and password
-    User adminUser = new User("Abdallah", "", "", "0523239955", "", null);
+
+    User adminUser =new User("Abdallah","Massri","a.v.e@live.com","","0523239955","abd123",null);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +49,12 @@ public class LoginActivity extends AppCompatActivity {
                 String password = etPass.getText().toString().trim();
 
                 // Check if the user is admin
-                if (username.equals("admin") && password.equals("0523239955")) {
+                if (username.equals("abd123") && password.equals("0523239955")) {
                     // User is admin, proceed to MainPage
-                    startActivity(new Intent(LoginActivity.this, MainPage.class));
+                    // After validating the user in LoginActivity
+                    Intent intent = new Intent(LoginActivity.this, MainPage.class);
+                    intent.putExtra("userName", username); // Pass the user name as an extra
+                    startActivity(intent);
                 } else {
                     // Check if the user exists in the Firebase database
                     Query query = userRef.orderByChild("userName").equalTo(username);
@@ -62,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(new Intent(LoginActivity.this, MainPage.class));
                             } else {
                                 // User does not exist, show toast message and navigate to SignUpActivity
-                                Toast.makeText(LoginActivity.this, "User does not exist. Please sign up.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this, "המשתמש לא קיים נא להעשות הרשמה ", Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(LoginActivity.this,SignUp_activity.class));
                             }
                         }

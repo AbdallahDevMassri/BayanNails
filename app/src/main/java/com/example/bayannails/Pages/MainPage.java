@@ -22,7 +22,11 @@ public class MainPage extends AppCompatActivity {
         setContentView(R.layout.activity_main_page);
         ImageView iv_gallery, iv_queue, iv_maps, iv_change, iv_cancel, iv_add, iv_instagram,
                 iv_watssup, iv_call, iv_facebook;
+        // Retrieve the user name from the Intent extras
+        String userName = getIntent().getStringExtra("userName");
 
+        // Set the user name as the title
+        setTitle(userName);
 
         iv_gallery = findViewById(R.id.ivGallery);
         iv_queue = findViewById(R.id.ivQueue);

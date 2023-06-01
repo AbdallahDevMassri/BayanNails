@@ -22,9 +22,10 @@ import com.google.firebase.database.DatabaseReference;
 
 public class SignUp_activity extends AppCompatActivity {
 
-    private EditText etName, etFamilyName, etEmail, etPhone, etPassword,etUser_Name;
+    private EditText etName, etFamilyName, etEmail, etPhone, etPassword, etUser_Name;
     private Button btnSignUp;
     private DatabaseReference userRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,8 +38,9 @@ public class SignUp_activity extends AppCompatActivity {
         etPhone = findViewById(R.id.etPhone);
         etPassword = findViewById(R.id.etPassword);
         btnSignUp = findViewById(R.id.buttonSignUp);
-        etUser_Name =findViewById(R.id.etUserName);
+        etUser_Name = findViewById(R.id.etUserName);
         userRef = FirebaseDatabase.getInstance().getReference("users");
+
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,7 +112,6 @@ public class SignUp_activity extends AppCompatActivity {
         }
 
         // Check if email already exists in Firebase
-
         Query emailQuery = userRef.orderByChild("email").equalTo(email);
         emailQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -120,7 +121,6 @@ public class SignUp_activity extends AppCompatActivity {
                     etEmail.requestFocus();
                 } else {
                     // Email does not exist, continue with other validations
-                    // ...
 
                     // Check if phone number already exists in Firebase
                     Query phoneQuery = userRef.orderByChild("phoneNumber").equalTo(phone);
@@ -131,22 +131,28 @@ public class SignUp_activity extends AppCompatActivity {
                                 etPhone.setError("מספר נייד קיים כבר במערכת ");
                                 etPhone.requestFocus();
                             } else {
-                                Query userName = userRef.orderByChild("userName").equalTo(phone);
-                                phoneQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                                Query userNameQuery = userRef.orderByChild("userName").equalTo(userName);
+                                userNameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         if (dataSnapshot.exists()) {
                                             etUser_Name.setError("שם משתמש קיים כבר במערכת ");
                                             etUser_Name.requestFocus();
                                         } else {
+                                            User user = new User(name, familyName, email, password, phone, userName, null);
+                                            userRef.push().setValue(user);
+                                            Toast.makeText(SignUp_activity.this, "welcome " + name, Toast.LENGTH_SHORT).show();
+                                            startActivity(new Intent(SignUp_activity.this, MainPage.class));
+                                            finish(); // Finish the current activity if navigation is successful
+                                        }
+                                    }
 
-
-                                User user =new User(name,familyName,email,password,phone,userName,null);
-                                userRef.push().setValue(user);
-                                Toast.makeText(SignUp_activity.this, "welcome "+name , Toast.LENGTH_SHORT).show();
-                                Intent intent=new Intent().putExtra("name",name);
-                                startActivity(new Intent(SignUp_activity.this, MainPage.class));
-                                finish(); // Finish the current activity if navigation is successful
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                        // Handle database error
+                                        Toast.makeText(SignUp_activity.this, "Database error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
                         }
 
@@ -166,7 +172,6 @@ public class SignUp_activity extends AppCompatActivity {
             }
         });
 
-        // Return false here, as the final result will be determined asynchronously
-        return false;
+        return true;
     }
 }
