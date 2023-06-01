@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.net.Uri;
 
 
+import com.example.bayannails.MapsActivity;
 import com.example.bayannails.R;
 
 public class MainPage extends AppCompatActivity {
@@ -19,6 +20,7 @@ public class MainPage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
+        setTitle("Welcome !!" + getIntent("name"));
         ImageView iv_gallery, iv_queue, iv_maps, iv_change, iv_cancel, iv_add, iv_instagram,
                 iv_watssup, iv_call, iv_facebook;
 
@@ -51,15 +53,15 @@ public class MainPage extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-//        iv_maps.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Perform navigation to another page here
-//                // Example: start a new activity
-//                Intent intent = new Intent(MainPage.this, MapsActivity.class);
-//                startActivity(intent);
-//            }
-//        });
+        iv_maps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Perform navigation to another page here
+                // Example: start a new activity
+                Intent intent = new Intent(MainPage.this, MapsActivity.class);
+                startActivity(intent);
+            }
+        });
         iv_instagram.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
