@@ -53,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(new Intent(LoginActivity.this, MainPage.class));
                 } else {
                     // Check if the user exists in the Firebase database
-                    Query query = userRef.orderByChild("email").equalTo(username);
+                    Query query = userRef.orderByChild("userName").equalTo(username);
                     query.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {

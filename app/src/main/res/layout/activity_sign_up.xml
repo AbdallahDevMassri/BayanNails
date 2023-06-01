@@ -72,6 +72,15 @@
             android:hint="סיסמה"
             android:inputType="textPassword"
             android:textAlignment="center" />
+        <EditText
+            android:id="@+id/etUserName"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+
+            android:layout_marginBottom="15dp"
+            android:hint="שם משתמש  "
+            android:textAlignment="center" />
 
         <Button
             android:id="@+id/buttonSignUp"

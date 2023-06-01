@@ -6,14 +6,16 @@ public class User {
     private String email;
     private String password;
     private String phoneNumber;
+    private String userName;
     private Order order;
 
-    public User(String firstName, String lastName, String email, String password, String phoneNumber, Order order) {
+    public User(String firstName, String lastName, String email, String password, String phoneNumber,String userName, Order order) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.phoneNumber = phoneNumber;
+        this.userName=userName;
         this.order = order;
     }
 
@@ -60,6 +62,14 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public Order getOrder() {
         return order;
     }
@@ -76,6 +86,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
+                ", userName='" + userName + '\'' +
                 ", order=" + order +
                 '}';
     }

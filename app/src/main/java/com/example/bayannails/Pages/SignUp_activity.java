@@ -22,7 +22,7 @@ import com.google.firebase.database.DatabaseReference;
 
 public class SignUp_activity extends AppCompatActivity {
 
-    private EditText etName, etFamilyName, etEmail, etPhone, etPassword;
+    private EditText etName, etFamilyName, etEmail, etPhone, etPassword,etUser_Name;
     private Button btnSignUp;
     private DatabaseReference userRef;
     @Override
@@ -37,6 +37,7 @@ public class SignUp_activity extends AppCompatActivity {
         etPhone = findViewById(R.id.etPhone);
         etPassword = findViewById(R.id.etPassword);
         btnSignUp = findViewById(R.id.buttonSignUp);
+        etUser_Name =findViewById(R.id.etUserName);
         userRef = FirebaseDatabase.getInstance().getReference("users");
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,48 +58,53 @@ public class SignUp_activity extends AppCompatActivity {
         String email = etEmail.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
-
+        String userName = etUser_Name.getText().toString().trim();
         // Check if any input is empty
         if (TextUtils.isEmpty(name)) {
-            etName.setError("Please enter your name");
+            etName.setError("נא הכנס שם פרטי");
             etName.requestFocus();
             return false;
         }
 
         if (TextUtils.isEmpty(familyName)) {
-            etFamilyName.setError("Please enter your family name");
+            etFamilyName.setError("נא הכנס שם משפחה ");
             etFamilyName.requestFocus();
             return false;
         }
 
         if (TextUtils.isEmpty(email)) {
-            etEmail.setError("Please enter your email");
+            etEmail.setError("נא הכנס כתובת דואר אלקטרוני");
             etEmail.requestFocus();
             return false;
         }
 
         if (TextUtils.isEmpty(phone)) {
-            etPhone.setError("Please enter your phone number");
+            etPhone.setError("נא הכנס מספר נייד");
             etPhone.requestFocus();
             return false;
         }
 
         if (TextUtils.isEmpty(password)) {
-            etPassword.setError("Please enter your password");
+            etPassword.setError("נא הכנס סיסמה ");
+            etPassword.requestFocus();
+            return false;
+        }
+        if (TextUtils.isEmpty(userName)) {
+            etUser_Name.setError("נא בחר שם משתמש");
             etPassword.requestFocus();
             return false;
         }
 
         // Check if email is valid
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmail.setError("Please enter a valid email");
+            etEmail.setError(" נא הכנס איימיל תקין");
             etEmail.requestFocus();
             return false;
         }
 
         // Check if phone number is valid (e.g., contains only digits and has a certain length)
         if (!TextUtils.isDigitsOnly(phone) || phone.length() != 10) {
-            etPhone.setError("Please enter a valid phone number");
+            etPhone.setError("נא הכנס מספר נייד תקין ");
             etPhone.requestFocus();
             return false;
         }
@@ -110,7 +116,7 @@ public class SignUp_activity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    etEmail.setError("Email already exists");
+                    etEmail.setError("דואר אלקטרוני קיים כבר במערכת ");
                     etEmail.requestFocus();
                 } else {
                     // Email does not exist, continue with other validations
@@ -122,14 +128,22 @@ public class SignUp_activity extends AppCompatActivity {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.exists()) {
-                                etPhone.setError("Phone number already exists");
+                                etPhone.setError("מספר נייד קיים כבר במערכת ");
                                 etPhone.requestFocus();
                             } else {
+                                Query userName = userRef.orderByChild("userName").equalTo(phone);
+                                phoneQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            etUser_Name.setError("שם משתמש קיים כבר במערכת ");
+                                            etUser_Name.requestFocus();
+                                        } else {
 
 
-                                User user =new User(name,familyName,email,password,phone,null);
+                                User user =new User(name,familyName,email,password,phone,userName,null);
                                 userRef.push().setValue(user);
-                                Toast.makeText(SignUp_activity.this, "welcome "+name + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SignUp_activity.this, "welcome "+name , Toast.LENGTH_SHORT).show();
                                 Intent intent=new Intent().putExtra("name",name);
                                 startActivity(new Intent(SignUp_activity.this, MainPage.class));
                                 finish(); // Finish the current activity if navigation is successful

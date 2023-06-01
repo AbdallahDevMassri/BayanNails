@@ -20,7 +20,6 @@ public class MainPage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
-        setTitle("Welcome !!" + getIntent("name"));
         ImageView iv_gallery, iv_queue, iv_maps, iv_change, iv_cancel, iv_add, iv_instagram,
                 iv_watssup, iv_call, iv_facebook;
 
