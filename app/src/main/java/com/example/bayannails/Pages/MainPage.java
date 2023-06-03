@@ -15,6 +15,7 @@ import com.example.bayannails.Classes.User;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -142,58 +143,57 @@ public class MainPage extends AppCompatActivity {
         });
     }
     private void showDateTimePicker() {
-        // Get the current date and time
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        // Retrieve the user name from the Intent extras
+        String userName = getIntent().getStringExtra("userName");
 
-        // Show date picker dialog
-        DatePickerDialog datePickerDialog = new DatePickerDialog(MainPage.this,
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDayOfMonth) {
-                        final int selectedYearFinal = selectedYear;
-                        final int selectedMonthFinal = selectedMonth;
-                        final int selectedDayFinal = selectedDayOfMonth;
+        if (userName != null) {
+            // Get a reference to the user node in the database
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(userName);
 
-                        // Show time picker dialog
-                        TimePickerDialog timePickerDialog = new TimePickerDialog(MainPage.this,
-                                new TimePickerDialog.OnTimeSetListener() {
-                                    @Override
-                                    public void onTimeSet(TimePicker view, int selectedHourOfDay, int selectedMinute) {
-                                        // Create an Order object with the selected hour
-                                        Order selectedOrder = new Order(selectedDayFinal, selectedMonthFinal, selectedYearFinal, selectedHourOfDay);
+            // Get the current date and time
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
-                                        // Update the orderList
-                                        orderList.add(selectedOrder);
+            // Show date picker dialog
+            DatePickerDialog datePickerDialog = new DatePickerDialog(MainPage.this,
+                    new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDayOfMonth) {
+                            final int selectedYearFinal = selectedYear;
+                            final int selectedMonthFinal = selectedMonth;
+                            final int selectedDayFinal = selectedDayOfMonth;
 
-                                        // Update the database with the selected order
-                                        DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference().child("orders");
-                                        String orderId = ordersRef.push().getKey();
-                                        ordersRef.child(orderId).setValue(selectedOrder);
+                            // Show time picker dialog
+                            TimePickerDialog timePickerDialog = new TimePickerDialog(MainPage.this,
+                                    new TimePickerDialog.OnTimeSetListener() {
+                                        @Override
+                                        public void onTimeSet(TimePicker view, int selectedHourOfDay, int selectedMinute) {
+                                            // Create an Order object with the selected hour
+                                            Order selectedOrder = new Order(selectedDayFinal, selectedMonthFinal, selectedYearFinal, selectedHourOfDay);
 
-                                        // Retrieve the user name from the Intent extras
-                                        String userName = getIntent().getStringExtra("userName");
+                                            // Update the orderList
+                                            orderList.add(selectedOrder);
 
-                                        // Update the database with the selected order and user name
-                                        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users");
-                                        if (userName != null) {
-                                            userRef = userRef.child(userName);
+                                            // Update the database with the selected order
+                                            DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference().child("orders");
+                                            String orderId = ordersRef.push().getKey();
+                                            ordersRef.child(orderId).setValue(selectedOrder);
+
+                                            // Update the user's order in the database
                                             userRef.child("order").setValue(selectedOrder);
 
-                                            Toast.makeText(MainPage.this, "Order added to "+ userName, Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            // Handle the case where userName is null (e.g., show an error message)
+                                            Toast.makeText(MainPage.this, "Order added to " + userName, Toast.LENGTH_SHORT).show();
                                         }
-                                    }
-                                }, hour, 0, true); // Set is24HourView to true and remove the minute parameter
-                        timePickerDialog.show();
-                    }
-                }, year, month, day);
-        datePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis()); // Set minimum date to the current date
-        datePickerDialog.show();
+                                    }, hour, 0, true); // Set is24HourView to true and remove the minute parameter
+                            timePickerDialog.show();
+                        }
+                    }, year, month, day);
+            datePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis()); // Set minimum date to the current date
+            datePickerDialog.show();
+        }
     }
 
 

@@ -1,6 +1,8 @@
 package com.example.bayannails.Classes;
 
-public class Order {
+import java.io.Serializable;
+
+public class Order implements Serializable {
     private int day;
     private int month;
     private int year;
