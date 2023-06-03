@@ -65,16 +65,7 @@ public class MainPage extends AppCompatActivity {
             }
         });
 
-        iv_queue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Perform navigation to another page here
 
-                Intent intent = new Intent(MainPage.this, Queue_activity.class);
-                intent.putExtra("orderList", (ArrayList<Order>) orderList);
-                startActivity(intent);
-            }
-        });
 
         iv_maps.setOnClickListener(new View.OnClickListener() {
             @Override
