@@ -1,5 +1,7 @@
 package com.example.bayannails.Classes;
 
+import java.util.List;
+
 public class User {
     private String firstName;
     private String lastName;
@@ -7,19 +9,19 @@ public class User {
     private String password;
     private String phoneNumber;
     private String userName;
-    private Order order;
+    private List<Order> order;
 
-    public User(String firstName, String lastName, String email, String password, String phoneNumber,String userName, Order order) {
+    public User() {
+    }
+
+    public User(String firstName, String lastName, String email, String password, String phoneNumber, String userName, List<Order> order) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.phoneNumber = phoneNumber;
-        this.userName=userName;
+        this.userName = userName;
         this.order = order;
-    }
-
-    public User() {
     }
 
     public String getFirstName() {
@@ -70,24 +72,11 @@ public class User {
         this.userName = userName;
     }
 
-    public Order getOrder() {
+    public List<Order> getOrder() {
         return order;
     }
 
-    public void setOrder(Order order) {
+    public void setOrder(List<Order> order) {
         this.order = order;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", userName='" + userName + '\'' +
-                ", order=" + order +
-                '}';
     }
 }

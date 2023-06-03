@@ -5,28 +5,17 @@ public class Order {
     private int month;
     private int year;
     private int hour;
-    private int min;
 
-    public Order(int day, int month, int year, int hour, int min) {
+
+    public Order(int day, int month, int year, int hour) {
         this.day = day;
         this.month = month;
         this.year = year;
         this.hour = hour;
-        this.min = min;
+
     }
 
     public Order() {
-    }
-
-    @Override
-    public String toString() {
-        return "Order{" +
-                "day=" + day +
-                ", month=" + month +
-                ", year=" + year +
-                ", hour=" + hour +
-                ", min=" + min +
-                '}';
     }
 
     public int getDay() {
@@ -61,11 +50,13 @@ public class Order {
         this.hour = hour;
     }
 
-    public int getMin() {
-        return min;
-    }
-
-    public void setMin(int min) {
-        this.min = min;
+    @Override
+    public String toString() {
+        return "Order{" +
+                "day=" + day +
+                ", month=" + month +
+                ", year=" + year +
+                ", hour=" + hour +
+                '}';
     }
 }

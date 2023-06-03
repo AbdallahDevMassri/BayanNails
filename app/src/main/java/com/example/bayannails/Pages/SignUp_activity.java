@@ -1,5 +1,6 @@
 package com.example.bayannails.Pages;
 
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -10,8 +11,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.example.bayannails.Classes.User;
+import com.example.bayannails.Classes.Order;
 import com.example.bayannails.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -139,9 +143,12 @@ public class SignUp_activity extends AppCompatActivity {
                                             etUser_Name.setError("שם משתמש קיים כבר במערכת ");
                                             etUser_Name.requestFocus();
                                         } else {
-                                            User user = new User(name, familyName, email, password, phone, userName, null);
-                                            userRef.push().setValue(user);
-                                            Toast.makeText(SignUp_activity.this, "welcome " + name, Toast.LENGTH_SHORT).show();
+                                            List<Order> orderList = new ArrayList<>(); // Create an empty order list
+                                            User user = new User(name, familyName, email, password, phone, userName, orderList);
+                                            String userId = userRef.push().getKey();
+                                            userRef.child(userId).setValue(user);
+
+                                            Toast.makeText(SignUp_activity.this, "Welcome " + name, Toast.LENGTH_SHORT).show();
                                             startActivity(new Intent(SignUp_activity.this, MainPage.class));
                                             finish(); // Finish the current activity if navigation is successful
                                         }

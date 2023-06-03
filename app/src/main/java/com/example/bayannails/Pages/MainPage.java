@@ -38,9 +38,9 @@ public class MainPage extends AppCompatActivity {
         ImageView iv_gallery, iv_queue, iv_maps, iv_change, iv_cancel, iv_add, iv_instagram,
                 iv_watssup, iv_call, iv_facebook;
 
+
         // Retrieve the user name from the Intent extras
         String userName = getIntent().getStringExtra("userName");
-
         // Set the user name as the title
         setTitle(userName);
 
@@ -148,14 +148,13 @@ public class MainPage extends AppCompatActivity {
             }
         });
     }
-
-    private void showDateTimePicker() { // Get the current date and time
+    private void showDateTimePicker() {
+        // Get the current date and time
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
 
         // Show date picker dialog
         DatePickerDialog datePickerDialog = new DatePickerDialog(MainPage.this,
@@ -171,8 +170,8 @@ public class MainPage extends AppCompatActivity {
                                 new TimePickerDialog.OnTimeSetListener() {
                                     @Override
                                     public void onTimeSet(TimePicker view, int selectedHourOfDay, int selectedMinute) {
-                                        // Create an Order object with the selected date and time
-                                        Order selectedOrder = new Order(selectedDayFinal, selectedMonthFinal, selectedYearFinal, selectedHourOfDay, selectedMinute);
+                                        // Create an Order object with the selected hour
+                                        Order selectedOrder = new Order(selectedDayFinal, selectedMonthFinal, selectedYearFinal, selectedHourOfDay);
 
                                         // Update the orderList
                                         orderList.add(selectedOrder);
@@ -182,9 +181,21 @@ public class MainPage extends AppCompatActivity {
                                         String orderId = ordersRef.push().getKey();
                                         ordersRef.child(orderId).setValue(selectedOrder);
 
-                                        Toast.makeText(MainPage.this, "Order added", Toast.LENGTH_SHORT).show();
+                                        // Retrieve the user name from the Intent extras
+                                        String userName = getIntent().getStringExtra("userName");
+
+                                        // Update the database with the selected order and user name
+                                        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users");
+                                        if (userName != null) {
+                                            userRef = userRef.child(userName);
+                                            userRef.child("order").setValue(selectedOrder);
+
+                                            Toast.makeText(MainPage.this, "Order added to "+ userName, Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            // Handle the case where userName is null (e.g., show an error message)
+                                        }
                                     }
-                                }, hour, minute, false);
+                                }, hour, 0, true); // Set is24HourView to true and remove the minute parameter
                         timePickerDialog.show();
                     }
                 }, year, month, day);
@@ -192,8 +203,10 @@ public class MainPage extends AppCompatActivity {
         datePickerDialog.show();
     }
 
+
+
     private void showOrderList() {
-        // Show a dialog or start a new activity to display the order list
+        //  start a new activity to display the order list
         // Perform logic to delete the selected order from the orderList and the database
         Toast.makeText(MainPage.this, "Cancel order clicked", Toast.LENGTH_SHORT).show();
     }
