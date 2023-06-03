@@ -51,8 +51,7 @@ public class LoginActivity extends AppCompatActivity {
                 // Check if the user is admin
                 if (username.equals("abd123") && password.equals("0523239955")) {
                     // User is admin, proceed to MainPage
-                    // After validating the user in LoginActivity
-                    Intent intent = new Intent(LoginActivity.this,MainPage.class);
+                    Intent intent = new Intent(LoginActivity.this, MainPage.class);
                     intent.putExtra("userName", username); // Pass the user name as an extra
                     startActivity(intent);
                 } else {
@@ -62,12 +61,17 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.exists()) {
-                                // User exists, proceed to MainPage
-                                startActivity(new Intent(LoginActivity.this, MainPage.class));
+                                // User exists, retrieve the user object from the database
+                                User user = dataSnapshot.getChildren().iterator().next().getValue(User.class);
+                                String userNameFromDB = user.getUserName(); // Retrieve the username from the user object
+                                // Proceed to MainPage with the retrieved username
+                                Intent intent = new Intent(LoginActivity.this, MainPage.class);
+                                intent.putExtra("userName", userNameFromDB); // Pass the user name as an extra
+                                startActivity(intent);
                             } else {
                                 // User does not exist, show toast message and navigate to SignUpActivity
                                 Toast.makeText(LoginActivity.this, "המשתמש לא קיים נא להעשות הרשמה ", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(LoginActivity.this,SignUp_activity.class));
+                                startActivity(new Intent(LoginActivity.this, SignUp_activity.class));
                             }
                         }
 

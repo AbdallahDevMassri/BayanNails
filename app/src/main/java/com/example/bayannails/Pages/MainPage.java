@@ -1,8 +1,6 @@
 package com.example.bayannails.Pages;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,19 +11,23 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
+import com.example.bayannails.Classes.User;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 
 import java.util.Calendar;
 import com.example.bayannails.Classes.Order;
-import com.example.bayannails.Pages.Queue_activity;
-import com.example.bayannails.Pages.Gallery_Activity;
+
 import com.example.bayannails.MapsActivity;
 import com.example.bayannails.R;
 
 import java.util.ArrayList;
 import java.util.List;
+////////
 
 public class MainPage extends AppCompatActivity {
     String myNumber = "0523239955";
@@ -38,11 +40,11 @@ public class MainPage extends AppCompatActivity {
         ImageView iv_gallery, iv_queue, iv_maps, iv_change, iv_cancel, iv_add, iv_instagram,
                 iv_watssup, iv_call, iv_facebook;
 
-
         // Retrieve the user name from the Intent extras
         String userName = getIntent().getStringExtra("userName");
+
         // Set the user name as the title
-        setTitle(userName);
+        setTitle("Welcome"+userName);
 
         iv_gallery = findViewById(R.id.ivGallery);
         iv_queue = findViewById(R.id.ivQueue);
@@ -67,7 +69,7 @@ public class MainPage extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Perform navigation to another page here
-                // Example: start a new activity
+
                 Intent intent = new Intent(MainPage.this, Queue_activity.class);
                 intent.putExtra("orderList", (ArrayList<Order>) orderList);
                 startActivity(intent);
