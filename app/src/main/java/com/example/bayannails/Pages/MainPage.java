@@ -1,4 +1,6 @@
 package com.example.bayannails.Pages;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.app.TimePickerDialog;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 import com.example.bayannails.Classes.User;
+import android.content.DialogInterface;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -129,16 +132,96 @@ public class MainPage extends AppCompatActivity {
         iv_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showOrderList();
+                // Retrieve the user name from the Intent extras
+                String userName = getIntent().getStringExtra("userName");
+
+                if (userName != null) {
+                    // Get a reference to the user node in the database
+                    DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(userName);
+
+                    // Retrieve the user's order from the database
+                    userRef.child("order").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                // Get the current order
+                                Order currentOrder = dataSnapshot.getValue(Order.class);
+
+                                // Display the order and provide an option to delete it
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainPage.this);
+                                builder.setTitle("Current Order");
+                                builder.setMessage("Day: " + currentOrder.getDay() + "\nMonth: " + currentOrder.getMonth() + "\nYear: " + currentOrder.getYear() + "\nHour: " + currentOrder.getHour());
+                                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Delete the order from the database
+                                        userRef.child("order").removeValue();
+                                        Toast.makeText(MainPage.this, "Order deleted", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                builder.setNegativeButton("Cancel", null);
+                                builder.show();
+                            } else {
+                                // User does not have an order
+                                Toast.makeText(MainPage.this, "You don't have an order", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            // Handle onCancelled if needed
+                        }
+                    });
+                }
             }
         });
 
         iv_change.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Perform change order functionality here
-                // You can show a dialog or start a new activity to update the order
-                Toast.makeText(MainPage.this, "Change order clicked", Toast.LENGTH_SHORT).show();
+                // Retrieve the user name from the Intent extras
+                String userName = getIntent().getStringExtra("userName");
+
+                if (userName != null) {
+                    // Get a reference to the user node in the database
+                    DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(userName);
+
+                    // Retrieve the user's order from the database
+                    userRef.child("order").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                // Get the current order
+                                Order currentOrder = dataSnapshot.getValue(Order.class);
+
+                                // Display the current order
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainPage.this);
+                                builder.setTitle("Current Order");
+                                builder.setMessage("Day: " + currentOrder.getDay() + "\nMonth: " + currentOrder.getMonth() + "\nYear: " + currentOrder.getYear() + "\nHour: " + currentOrder.getHour());
+                                builder.setPositiveButton("Change Order", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Delete the current order from the database
+                                        userRef.child("order").removeValue();
+
+                                        // Call the method to show the date and time picker
+                                        showDateTimePicker();
+                                    }
+                                });
+                                builder.setNegativeButton("Cancel", null);
+                                builder.show();
+                            } else {
+                                // User does not have an order, directly call the method to show the date and time picker
+                                showDateTimePicker();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            // Handle onCancelled if needed
+                        }
+                    });
+                }
             }
         });
     }
@@ -150,58 +233,67 @@ public class MainPage extends AppCompatActivity {
             // Get a reference to the user node in the database
             DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(userName);
 
-            // Get the current date and time
-            Calendar calendar = Calendar.getInstance();
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            // Check if the user already has an order
+            userRef.child("order").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        // User already has an order
+                        Toast.makeText(MainPage.this, "You already have an order", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Get the current date and time
+                        Calendar calendar = Calendar.getInstance();
+                        int year = calendar.get(Calendar.YEAR);
+                        int month = calendar.get(Calendar.MONTH);
+                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+                        int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
-            // Show date picker dialog
-            DatePickerDialog datePickerDialog = new DatePickerDialog(MainPage.this,
-                    new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDayOfMonth) {
-                            final int selectedYearFinal = selectedYear;
-                            final int selectedMonthFinal = selectedMonth;
-                            final int selectedDayFinal = selectedDayOfMonth;
+                        // Show date picker dialog
+                        DatePickerDialog datePickerDialog = new DatePickerDialog(MainPage.this,
+                                new DatePickerDialog.OnDateSetListener() {
+                                    @Override
+                                    public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDayOfMonth) {
+                                        final int selectedYearFinal = selectedYear;
+                                        final int selectedMonthFinal = selectedMonth;
+                                        final int selectedDayFinal = selectedDayOfMonth;
 
-                            // Show time picker dialog
-                            TimePickerDialog timePickerDialog = new TimePickerDialog(MainPage.this,
-                                    new TimePickerDialog.OnTimeSetListener() {
-                                        @Override
-                                        public void onTimeSet(TimePicker view, int selectedHourOfDay, int selectedMinute) {
-                                            // Create an Order object with the selected hour
-                                            Order selectedOrder = new Order(selectedDayFinal, selectedMonthFinal, selectedYearFinal, selectedHourOfDay);
+                                        // Show time picker dialog
+                                        TimePickerDialog timePickerDialog = new TimePickerDialog(MainPage.this,
+                                                new TimePickerDialog.OnTimeSetListener() {
+                                                    @Override
+                                                    public void onTimeSet(TimePicker view, int selectedHourOfDay, int selectedMinute) {
+                                                        // Create an Order object with the selected hour
+                                                        Order selectedOrder = new Order(selectedDayFinal, selectedMonthFinal, selectedYearFinal, selectedHourOfDay);
 
-                                            // Update the orderList
-                                            orderList.add(selectedOrder);
+                                                        // Update the database with the selected order
+                                                        DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference().child("orders");
+                                                        String orderId = ordersRef.push().getKey();
+                                                        ordersRef.child(orderId).setValue(selectedOrder);
 
-                                            // Update the database with the selected order
-                                            DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference().child("orders");
-                                            String orderId = ordersRef.push().getKey();
-                                            ordersRef.child(orderId).setValue(selectedOrder);
+                                                        // Update the user's order in the database
+                                                        userRef.child("order").setValue(selectedOrder);
 
-                                            // Update the user's order in the database
-                                            userRef.child("order").setValue(selectedOrder);
+                                                        Toast.makeText(MainPage.this, "Order added to " + userName, Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }, hour, 0, true); // Set is24HourView to true and remove the minute parameter
+                                        timePickerDialog.show();
+                                    }
+                                }, year, month, day);
+                        datePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis()); // Set minimum date to the current date
+                        datePickerDialog.show();
+                    }
+                }
 
-                                            Toast.makeText(MainPage.this, "Order added to " + userName, Toast.LENGTH_SHORT).show();
-                                        }
-                                    }, hour, 0, true); // Set is24HourView to true and remove the minute parameter
-                            timePickerDialog.show();
-                        }
-                    }, year, month, day);
-            datePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis()); // Set minimum date to the current date
-            datePickerDialog.show();
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Handle onCancelled if needed
+                }
+            });
         }
     }
 
 
 
-    private void showOrderList() {
-        //  start a new activity to display the order list
-        // Perform logic to delete the selected order from the orderList and the database
-        Toast.makeText(MainPage.this, "Cancel order clicked", Toast.LENGTH_SHORT).show();
-    }
+
 }
 

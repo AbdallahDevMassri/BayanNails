@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
                 // Check if the user is admin
                 if (username.equals("abd123") && password.equals("0523239955")) {
                     // User is admin, proceed to MainPage
-                    Intent intent = new Intent(LoginActivity.this, MainPage.class);
+                    Intent intent = new Intent(LoginActivity.this,Admin_Activity.class);
                     intent.putExtra("userName", username); // Pass the user name as an extra
                     startActivity(intent);
                 } else {

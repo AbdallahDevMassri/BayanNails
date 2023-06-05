@@ -35,13 +35,13 @@ public class Admin_Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
-        Button btn_addToGallery, btn_TakeAPic;
+        Button btn_addToGallery,btn_goMain;
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
         btn_addToGallery = findViewById(R.id.btnAddtoGallery);
-        btn_TakeAPic = findViewById(R.id.btnTakeAPic);
+
         iv_uploadPic = findViewById(R.id.imageView);
         tv = findViewById(R.id.tvUrl);
 
