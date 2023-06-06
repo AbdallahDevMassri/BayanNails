@@ -1,52 +1,62 @@
 package com.example.bayannails.Classes;
+
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.bayannails.R;
-import java.util.ArrayList;
-import com.example.bayannails.Classes.Order;
 
+import java.util.List;
+import java.util.Locale;
 
+public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
+    private Context context;
+    private List<Order> orders;
 
-
-public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> {
-
-    private ArrayList<Order> orderList;
-
-    public OrderAdapter(ArrayList<Order> orderList) {
-        this.orderList = orderList;
+    public OrderAdapter(Context context, List<Order> orders) {
+        this.context = context;
+        this.orders = orders;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_order, parent, false);
-        return new ViewHolder(view);
+    public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(context).inflate(R.layout.item_order, parent, false);
+        return new OrderViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Order order = orderList.get(position);
-        holder.textViewDate.setText(order.getDay() + "/" + order.getMonth() + "/" + order.getYear());
-
+    public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
+        Order order = orders.get(position);
+        holder.bind(order);
     }
 
     @Override
     public int getItemCount() {
-        return orderList.size();
+        return orders.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewDate;
-        TextView textViewTime;
+    public class OrderViewHolder extends RecyclerView.ViewHolder {
+        private TextView dateTextView;
+        private TextView timeTextView;
+        private TextView userNameTextView;
 
-        public ViewHolder(@NonNull View itemView) {
+        public OrderViewHolder(@NonNull View itemView) {
             super(itemView);
-            textViewDate = itemView.findViewById(R.id.textViewDate);
-            textViewTime = itemView.findViewById(R.id.textViewTime);
+            dateTextView = itemView.findViewById(R.id.dateTextView);
+            timeTextView = itemView.findViewById(R.id.timeTextView);
+            userNameTextView = itemView.findViewById(R.id.userNameTextView);
+        }
+
+        public void bind(Order order) {
+            dateTextView.setText(String.format(Locale.getDefault(), "%02d/%02d/%d", order.getDay(), order.getMonth(), order.getYear()));
+            timeTextView.setText(String.format(Locale.getDefault(), "%02d:00", order.getHour()));
+            userNameTextView.setText(order.getUser().getUserName());
         }
     }
 }

@@ -3,6 +3,8 @@ package com.example.bayannails.Pages;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,7 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import com.example.bayannails.Classes.Order;
 import com.example.bayannails.R;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,27 +25,60 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class Admin_Activity extends AppCompatActivity {
 
+    private RecyclerView orderRecyclerView;
+    //    private OrderAdapter orderAdapter;
+    private List<Order> orders;
+
     private ImageView iv_uploadPic;
     private TextView tv;
-    private StorageReference storageRef; // Declare the storageRef variable
+    private StorageReference storageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
-        Button btn_addToGallery,btn_goMain;
+
+        Button btn_addToGallery = findViewById(R.id.btnAddtoGallery);
+        Button btn_goMain = findViewById(R.id.btn2Main);
+        iv_uploadPic = findViewById(R.id.imageView);
+        tv = findViewById(R.id.tvUrl);
+
+        // Initialize RecyclerView and its adapter
+        orderRecyclerView = findViewById(R.id.orderRecyclerView);
+        orderRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        orders = new ArrayList<>();
+        OrderAdapter orderAdapter = new OrderAdapter(this, orders);
+        orderRecyclerView.setAdapter(orderAdapter);
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
-        btn_addToGallery = findViewById(R.id.btnAddtoGallery);
+        DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference("orders");
+        ordersRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                orders.clear();
 
-        iv_uploadPic = findViewById(R.id.imageView);
-        tv = findViewById(R.id.tvUrl);
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Order order = snapshot.getValue(Order.class);
+                    orders.add(order);
+                }
+
+                orderAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle database error
+            }
+        });
+
 
         btn_addToGallery.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,8 +88,15 @@ public class Admin_Activity extends AppCompatActivity {
             }
         });
 
-
+        btn_goMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Admin_Activity.this, MainPage.class);
+                startActivity(intent);
+            }
+        });
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

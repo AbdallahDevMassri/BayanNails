@@ -1,4 +1,5 @@
 package com.example.bayannails.Pages;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,20 +14,20 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
-import com.example.bayannails.Classes.User;
+
 import android.content.DialogInterface;
 
+import com.example.bayannails.MapsActivity;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
 import java.util.Calendar;
+
 import com.example.bayannails.Classes.Order;
 
-import com.example.bayannails.MapsActivity;
 import com.example.bayannails.R;
 
 import java.util.ArrayList;
@@ -48,11 +49,11 @@ public class MainPage extends AppCompatActivity {
         String userName = getIntent().getStringExtra("userName");
 
         // Set the user name as the title
-        setTitle("Welcome"+userName);
+        setTitle("Welcome" + userName);
 
         iv_gallery = findViewById(R.id.ivGallery);
         iv_queue = findViewById(R.id.ivQueue);
-        iv_maps = findViewById(R.id.ivMaps);
+        iv_maps = findViewById(R.id.imageView_maps);
         iv_change = findViewById(R.id.ivChange);
         iv_cancel = findViewById(R.id.ivCancel);
         iv_add = findViewById(R.id.ivAdd);
@@ -60,6 +61,45 @@ public class MainPage extends AppCompatActivity {
         iv_facebook = findViewById(R.id.ivFacebook);
         iv_watssup = findViewById(R.id.ivWatssup);
         iv_call = findViewById(R.id.ivCall);
+
+        iv_queue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Retrieve the user name from the Intent extras
+                String userName = getIntent().getStringExtra("userName");
+
+                if (userName != null) {
+                    // Get a reference to the user node in the database
+                    DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(userName);
+
+                    // Retrieve the user's order from the database
+                    userRef.child("order").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                // Get the current order
+                                Order currentOrder = dataSnapshot.getValue(Order.class);
+
+                                // Display the order in an alert dialog
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainPage.this);
+                                builder.setTitle("התור שלי");
+                                builder.setMessage("Day: " + currentOrder.getDay() + "\nMonth: " + currentOrder.getMonth() + "\nYear: " + currentOrder.getYear() + "\nHour: " + currentOrder.getHour());
+                                builder.setPositiveButton("OK", null);
+                                builder.show();
+                            } else {
+                                // User does not have an order
+                                Toast.makeText(MainPage.this, "אין לך תור עד עכשיו", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            // Handle onCancelled if needed
+                        }
+                    });
+                }
+            }
+        });
 
         iv_gallery.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,14 +110,13 @@ public class MainPage extends AppCompatActivity {
         });
 
 
-
         iv_maps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Perform navigation to another page here
-                // Example: start a new activity
                 Intent intent = new Intent(MainPage.this, MapsActivity.class);
                 startActivity(intent);
+//                Intent intent = new Intent(MainPage.this,MapsActivity.class);
+//                startActivity(intent);
             }
         });
 
@@ -149,21 +188,21 @@ public class MainPage extends AppCompatActivity {
 
                                 // Display the order and provide an option to delete it
                                 AlertDialog.Builder builder = new AlertDialog.Builder(MainPage.this);
-                                builder.setTitle("Current Order");
+                                builder.setTitle("התור הנוכחי");
                                 builder.setMessage("Day: " + currentOrder.getDay() + "\nMonth: " + currentOrder.getMonth() + "\nYear: " + currentOrder.getYear() + "\nHour: " + currentOrder.getHour());
-                                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                builder.setPositiveButton("מחק תור", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         // Delete the order from the database
                                         userRef.child("order").removeValue();
-                                        Toast.makeText(MainPage.this, "Order deleted", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(MainPage.this, "התור שלך נמחק ", Toast.LENGTH_SHORT).show();
                                     }
                                 });
-                                builder.setNegativeButton("Cancel", null);
+                                builder.setNegativeButton("ביטול", null);
                                 builder.show();
                             } else {
                                 // User does not have an order
-                                Toast.makeText(MainPage.this, "You don't have an order", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainPage.this, "אין לך תורים", Toast.LENGTH_SHORT).show();
                             }
                         }
 
@@ -196,9 +235,9 @@ public class MainPage extends AppCompatActivity {
 
                                 // Display the current order
                                 AlertDialog.Builder builder = new AlertDialog.Builder(MainPage.this);
-                                builder.setTitle("Current Order");
+                                builder.setTitle("התור הנוכחי");
                                 builder.setMessage("Day: " + currentOrder.getDay() + "\nMonth: " + currentOrder.getMonth() + "\nYear: " + currentOrder.getYear() + "\nHour: " + currentOrder.getHour());
-                                builder.setPositiveButton("Change Order", new DialogInterface.OnClickListener() {
+                                builder.setPositiveButton("שינוי תור", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         // Delete the current order from the database
@@ -208,7 +247,7 @@ public class MainPage extends AppCompatActivity {
                                         showDateTimePicker();
                                     }
                                 });
-                                builder.setNegativeButton("Cancel", null);
+                                builder.setNegativeButton("ביתול", null);
                                 builder.show();
                             } else {
                                 // User does not have an order, directly call the method to show the date and time picker
@@ -225,6 +264,7 @@ public class MainPage extends AppCompatActivity {
             }
         });
     }
+
     private void showDateTimePicker() {
         // Retrieve the user name from the Intent extras
         String userName = getIntent().getStringExtra("userName");
@@ -239,12 +279,12 @@ public class MainPage extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         // User already has an order
-                        Toast.makeText(MainPage.this, "You already have an order", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainPage.this, "יש לך כבר תור במערכת", Toast.LENGTH_SHORT).show();
                     } else {
                         // Get the current date and time
                         Calendar calendar = Calendar.getInstance();
                         int year = calendar.get(Calendar.YEAR);
-                        int month = calendar.get(Calendar.MONTH);
+                        int month = (calendar.get(Calendar.MONTH))+1;
                         int day = calendar.get(Calendar.DAY_OF_MONTH);
                         int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
@@ -273,7 +313,7 @@ public class MainPage extends AppCompatActivity {
                                                         // Update the user's order in the database
                                                         userRef.child("order").setValue(selectedOrder);
 
-                                                        Toast.makeText(MainPage.this, "Order added to " + userName, Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(MainPage.this, "הוספתה תור אל " + userName, Toast.LENGTH_SHORT).show();
                                                     }
                                                 }, hour, 0, true); // Set is24HourView to true and remove the minute parameter
                                         timePickerDialog.show();
@@ -291,8 +331,6 @@ public class MainPage extends AppCompatActivity {
             });
         }
     }
-
-
 
 
 }
