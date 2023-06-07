@@ -3,18 +3,25 @@ package com.example.bayannails.Pages;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import androidx.annotation.NonNull;
 
 import com.example.bayannails.Classes.ImageAdapter;
 import com.example.bayannails.R;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.example.bayannails.Classes.User;
+import com.example.bayannails.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.firebase.storage.ListResult;
-import com.google.firebase.storage.StorageReference;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -22,6 +29,9 @@ public class Gallery_Activity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ImageAdapter imageAdapter;
+
+    private DatabaseReference picRefDB;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,25 +43,34 @@ public class Gallery_Activity extends AppCompatActivity {
         imageAdapter = new ImageAdapter();
         recyclerView.setAdapter(imageAdapter);
 
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
-        StorageReference imageRef = storageRef.child("userImage");
 
-        imageRef.listAll().addOnCompleteListener(new OnCompleteListener<ListResult>() {
+
+        picRefDB = FirebaseDatabase.getInstance().getReference("pics");
+
+        Query q = picRefDB;
+        q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onComplete(@NonNull Task<ListResult> task) {
-                if (task.isSuccessful()) {
-                    List<StorageReference> items = task.getResult().getItems();
-                    List<String> imageUrls = new ArrayList<>();
-                    for (StorageReference item : items) {
-                        imageUrls.add(item.getDownloadUrl().toString());
-                    }
-                    imageAdapter.setData(imageUrls);
-                    imageAdapter.notifyDataSetChanged();
-                } else {
-                    // Handle the error
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                List<String> imageUrls = new ArrayList<>();
+
+                for(DataSnapshot dspic : snapshot.getChildren()) {
+
+                    String stpic = dspic.getValue(String.class);
+                    imageUrls.add(stpic);
                 }
+                imageAdapter.setData(imageUrls);
+                imageAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
+
+
+
+
     }
 }

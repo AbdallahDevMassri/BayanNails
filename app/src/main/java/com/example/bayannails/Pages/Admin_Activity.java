@@ -3,8 +3,9 @@ package com.example.bayannails.Pages;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+
+import android.widget.ListView;
+import android.widget.ArrayAdapter;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -23,6 +24,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -30,15 +36,15 @@ import java.util.Calendar;
 import java.util.List;
 
 public class Admin_Activity extends AppCompatActivity {
+    private List<Order> orders; // Declare the orders variable
+    private ListView orderListView;
+    private ArrayAdapter<Order> orderAdapter;
 
-    private RecyclerView orderRecyclerView;
-    //    private OrderAdapter orderAdapter;
-    private List<Order> orders;
 
     private ImageView iv_uploadPic;
     private TextView tv;
     private StorageReference storageRef;
-
+    private DatabaseReference picRefDB;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,26 +55,28 @@ public class Admin_Activity extends AppCompatActivity {
         iv_uploadPic = findViewById(R.id.imageView);
         tv = findViewById(R.id.tvUrl);
 
-        // Initialize RecyclerView and its adapter
-        orderRecyclerView = findViewById(R.id.orderRecyclerView);
-        orderRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        orderListView = findViewById(R.id.orderListView);
         orders = new ArrayList<>();
-        OrderAdapter orderAdapter = new OrderAdapter(this, orders);
-        orderRecyclerView.setAdapter(orderAdapter);
+        orderAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, orders);
+        orderListView.setAdapter(orderAdapter);
+
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
+
+        picRefDB = FirebaseDatabase.getInstance().getReference("pics");
+
 
         DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference("orders");
         ordersRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                orders.clear();
-
+                orderAdapter.clear(); // Clear the previous orders
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Order order = snapshot.getValue(Order.class);
-                    orders.add(order);
+                    orderAdapter.add(order);
                 }
+
 
                 orderAdapter.notifyDataSetChanged();
             }
@@ -138,7 +146,8 @@ public class Admin_Activity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Uri> task) {
                 if (task.isSuccessful()) {
                     Uri downloadUri = task.getResult();
-                    tv.setText(downloadUri.toString());
+                    //tv.setText(downloadUri.toString());
+                    picRefDB.push().setValue(downloadUri.toString());
                 } else {
                     // Handle failures
                     // ...
