@@ -18,9 +18,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 public class LoginActivity extends AppCompatActivity {
 
     private DatabaseReference userRef;
+    private SharedPreferences sharedPreferences;
 
     // Create a final admin user with fixed name and password
 
@@ -38,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         btnSignUp = findViewById(R.id.buttonSignUp);
         etName = findViewById(R.id.etUserName);
         etPass = findViewById(R.id.etPassword);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Get reference to the "users" node in the Firebase database
         userRef = FirebaseDatabase.getInstance().getReference("users");
@@ -48,11 +53,27 @@ public class LoginActivity extends AppCompatActivity {
                 String username = etName.getText().toString().trim();
                 String password = etPass.getText().toString().trim();
 
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("sergey", "sergey"); // Set the username value for the "sergey" key
+                editor.putString("moroz", "moroz"); // Set the password value for the "moroz" key
+                editor.apply();
+
                 // Check if the user is admin
                 if (username.equals("abd123") && password.equals("0523239955")) {
-                    // User is admin, proceed to MainPage
-                    Intent intent = new Intent(LoginActivity.this,Admin_Activity.class);
+                    // User is admin, proceed to Admin_Activity
+                    Intent intent = new Intent(LoginActivity.this, Admin_Activity.class);
                     intent.putExtra("userName", username); // Pass the user name as an extra
+                    startActivity(intent);
+                } else if (username.equals(sharedPreferences.getString("sergey", ""))
+                        && password.equals(sharedPreferences.getString("moroz", ""))) {
+                    // Successful login using SharedPreferences credentials
+                    // Perform any actions you want to do after successful login
+
+                    // For example, you can start a new activity or display a toast message
+                    Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+
+                    // Start a new activity
+                    Intent intent = new Intent(LoginActivity.this, Admin_Activity.class);
                     startActivity(intent);
                 } else {
                     // Check if the user exists in the Firebase database
@@ -70,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(intent);
                             } else {
                                 // User does not exist, show toast message and navigate to SignUpActivity
-                                Toast.makeText(LoginActivity.this, "המשתמש לא קיים נא להעשות הרשמה ", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this, "משתמש לא קיים, נא לעשות הרשמה", Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(LoginActivity.this, SignUp_activity.class));
                             }
                         }
@@ -84,6 +105,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
 
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override

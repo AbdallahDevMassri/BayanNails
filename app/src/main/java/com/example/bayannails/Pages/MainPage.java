@@ -4,9 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -17,6 +21,7 @@ import android.widget.TimePicker;
 
 import android.content.DialogInterface;
 
+import com.example.bayannails.Classes.OrderService;
 import com.example.bayannails.MapsActivity;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -29,15 +34,16 @@ import java.util.Calendar;
 import com.example.bayannails.Classes.Order;
 
 import com.example.bayannails.R;
+import com.google.firebase.database.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-////////
+
 
 public class MainPage extends AppCompatActivity {
     String myNumber = "0523239955";
     List<Order> orderList = new ArrayList<>();
-
+    private OrderService orderService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +55,7 @@ public class MainPage extends AppCompatActivity {
         String userName = getIntent().getStringExtra("userName");
 
         // Set the user name as the title
-        setTitle("Welcome" + userName);
+        setTitle("Welcome " + userName);
 
         iv_gallery = findViewById(R.id.ivGallery);
         iv_queue = findViewById(R.id.ivQueue);
@@ -61,6 +67,13 @@ public class MainPage extends AppCompatActivity {
         iv_facebook = findViewById(R.id.ivFacebook);
         iv_watssup = findViewById(R.id.ivWatssup);
         iv_call = findViewById(R.id.ivCall);
+
+        // Bind to the OrderService
+        Intent serviceIntent = new Intent(this, OrderService.class);
+
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+
 
         iv_queue.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,6 +132,7 @@ public class MainPage extends AppCompatActivity {
 //                startActivity(intent);
             }
         });
+
 
         iv_instagram.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -247,7 +261,7 @@ public class MainPage extends AppCompatActivity {
                                         showDateTimePicker();
                                     }
                                 });
-                                builder.setNegativeButton("ביתול", null);
+                                builder.setNegativeButton("ביטול", null);
                                 builder.show();
                             } else {
                                 // User does not have an order, directly call the method to show the date and time picker
@@ -333,5 +347,87 @@ public class MainPage extends AppCompatActivity {
     }
 
 
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            OrderService.LocalBinder binder = (OrderService.LocalBinder) service;
+            orderService = binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            orderService = null;
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Unbind from the OrderService
+        unbindService(serviceConnection);
+    }
+
+    private void getUserOrder(String userName) {
+        orderService.getUserOrder(userName, new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Order currentOrder = dataSnapshot.getValue(Order.class);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainPage.this);
+                    builder.setTitle("התור שלי");
+                    builder.setMessage("Day: " + currentOrder.getDay() + "\nMonth: " + currentOrder.getMonth() + "\nYear: " + currentOrder.getYear() + "\nHour: " + currentOrder.getHour());
+                    builder.setPositiveButton("OK", null);
+                    builder.show();
+                } else {
+                    Toast.makeText(MainPage.this, "אין לך תור עד עכשיו", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle onCancelled if needed
+            }
+        });
+    }
+    private void deleteOrder(String userName) {
+        orderService.deleteOrder(userName, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                if (databaseError == null) {
+                    Toast.makeText(MainPage.this, "התור נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainPage.this, "נכשל במחיקת התור", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void updateOrder(String userName, Order newOrder) {
+        orderService.updateOrder(userName, newOrder, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                if (databaseError == null) {
+                    Toast.makeText(MainPage.this, "התור עודכן בהצלחה", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainPage.this, "נכשל בעדכון התור", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void addOrder(Order order) {
+        orderService.addOrder(order, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                if (databaseError == null) {
+                    Toast.makeText(MainPage.this, "התור נוסף בהצלחה", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainPage.this, "נכשל בהוספת התור", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 }
+
+
 

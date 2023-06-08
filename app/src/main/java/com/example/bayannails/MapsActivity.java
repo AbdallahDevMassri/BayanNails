@@ -1,51 +1,70 @@
 package com.example.bayannails;
 
-import androidx.fragment.app.FragmentActivity;
 
 import android.os.Bundle;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.example.bayannails.databinding.ActivityMapsBinding;
+import android.widget.Toast;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+import androidx.appcompat.app.AppCompatActivity;
 
-    private GoogleMap mMap;
-    private ActivityMapsBinding binding;
+import android.content.Intent;
+import android.net.Uri;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
+
+
+public class MapsActivity extends AppCompatActivity {
+
+    private static final double DESTINATION_LATITUDE = 32.809946;
+    private static final double DESTINATION_LONGITUDE = 34.984639;
+
+    private BroadcastReceiver batteryLowReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_maps);
 
-        binding = ActivityMapsBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        batteryLowReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int batteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                int batteryScale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+                float batteryPercentage = batteryLevel * 100 / (float) batteryScale;
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+                if (batteryPercentage < 15) {
+                    Toast.makeText(context, "Low battery, please charge!", Toast.LENGTH_SHORT).show();
+                    finish(); // Close the activity
+                } else {
+                    startNavigation();
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(batteryLowReceiver, filter);
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(batteryLowReceiver);
+    }
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    private void startNavigation() {
+        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + DESTINATION_LATITUDE + "," + DESTINATION_LONGITUDE);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
     }
 }
+
+
+
+
+
+
+

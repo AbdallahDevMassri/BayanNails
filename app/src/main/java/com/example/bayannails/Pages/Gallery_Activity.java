@@ -3,6 +3,9 @@ package com.example.bayannails.Pages;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+
 import androidx.annotation.NonNull;
 
 import com.example.bayannails.Classes.ImageAdapter;
@@ -43,6 +46,11 @@ public class Gallery_Activity extends AppCompatActivity {
         imageAdapter = new ImageAdapter();
         recyclerView.setAdapter(imageAdapter);
 
+        // Load the animation from the XML file
+        Animation scaleAnimation = AnimationUtils.loadAnimation(this, R.anim.scale_animation);
+
+        // Apply the animation to a view
+        recyclerView.startAnimation(scaleAnimation);
 
 
         picRefDB = FirebaseDatabase.getInstance().getReference("pics");
@@ -68,7 +76,6 @@ public class Gallery_Activity extends AppCompatActivity {
 
             }
         });
-
 
 
 

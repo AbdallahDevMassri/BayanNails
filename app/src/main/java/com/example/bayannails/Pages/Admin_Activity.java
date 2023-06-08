@@ -36,15 +36,14 @@ import java.util.Calendar;
 import java.util.List;
 
 public class Admin_Activity extends AppCompatActivity {
-    private List<Order> orders; // Declare the orders variable
+    private List<Order> orders;
     private ListView orderListView;
     private ArrayAdapter<Order> orderAdapter;
-
-
     private ImageView iv_uploadPic;
     private TextView tv;
     private StorageReference storageRef;
     private DatabaseReference picRefDB;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,29 +54,26 @@ public class Admin_Activity extends AppCompatActivity {
         iv_uploadPic = findViewById(R.id.imageView);
         tv = findViewById(R.id.tvUrl);
 
+
+
         orderListView = findViewById(R.id.orderListView);
         orders = new ArrayList<>();
         orderAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, orders);
         orderListView.setAdapter(orderAdapter);
 
-
         FirebaseStorage storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
-
         picRefDB = FirebaseDatabase.getInstance().getReference("pics");
-
 
         DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference("orders");
         ordersRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                orderAdapter.clear(); // Clear the previous orders
+                orderAdapter.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Order order = snapshot.getValue(Order.class);
                     orderAdapter.add(order);
                 }
-
-
                 orderAdapter.notifyDataSetChanged();
             }
 
@@ -86,7 +82,6 @@ public class Admin_Activity extends AppCompatActivity {
                 // Handle database error
             }
         });
-
 
         btn_addToGallery.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,7 +99,6 @@ public class Admin_Activity extends AppCompatActivity {
             }
         });
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -137,8 +131,6 @@ public class Admin_Activity extends AppCompatActivity {
                 if (!task.isSuccessful()) {
                     throw task.getException();
                 }
-
-                // Continue with the task to get the download URL
                 return picref.getDownloadUrl();
             }
         }).addOnCompleteListener(new OnCompleteListener<Uri>() {
@@ -146,7 +138,6 @@ public class Admin_Activity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Uri> task) {
                 if (task.isSuccessful()) {
                     Uri downloadUri = task.getResult();
-                    //tv.setText(downloadUri.toString());
                     picRefDB.push().setValue(downloadUri.toString());
                 } else {
                     // Handle failures
@@ -156,3 +147,4 @@ public class Admin_Activity extends AppCompatActivity {
         });
     }
 }
+
